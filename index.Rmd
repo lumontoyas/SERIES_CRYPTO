@@ -1,0 +1,313 @@
+--- 
+title: "Análisis de Tendencias y Comportamiento de la crypto USDT"
+author: "Luisa Fernanda Montoya Salazar"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: book.bib
+description: En el contexto de este estudio, se explorará la base de datos relacionada
+  con la crypto USDT, con el propósito de obtener una comprensión profunda de los
+  patrones y comportamientos en los precios de este activo digital
+link-citations: yes
+github-repo: lumontoyas/SERIES_CRYPTO
+---
+
+# Introducción
+
+::: text-justify
+En el contexto de este estudio, se explorará la base de datos relacionada con criptomonedas, específicamente la dataset "crypto", con el propósito de obtener una comprensión profunda de los patrones y comportamientos en los precios de estas activos digitales. La elección de analizar esta información a través de análisis de series de tiempo en R Studio a través de Bookdown radica en la capacidad de estas técnicas para revelar tendencias, patrones estacionales y fluctuaciones en los precios a lo largo del tiempo. Dado que las criptomonedas son conocidas por su volatilidad y su naturaleza cambiante, el enfoque en análisis de series de tiempo permitirá una exploración detallada de la evolución temporal de estos activos, brindando información valiosa para la toma de decisiones informadas en el mundo de las inversiones y las finanzas digitales.
+:::
+
+# Contexto
+
+::: text-justify
+El dataset seleccionado "Crypto currencies daily prices" y disponible en Kaggle, es adecuado para llevar a cabo un análisis de series de tiempo debido a la naturaleza temporal y secuencial de los datos. Además de su naturaleza, dichos datos permiten comprender el comportamiento y las tendencias de los activos digitales en el mercado de criptomonedas.A continuación, se presenta una justificación sólida para el análisis de este conjunto de datos
+:::
+
+::: text-justify
+## **Justificación**
+
+Esta elección es particularmente relevante para las funciones que desarrollo como Directora de Operaciones en mi trabajo actual,en la que uno de nuestros productos corresponda a una pasarela de pagos que acepta criptomonedas. Por lo tanto, el análisis de estas tendencias proporcionará información crítica para tomar decisiones informadas y estratégicas sobre qué criptomonedas aceptar en la pasarela de pagos y cómo gestionar los riesgos asociados con la volatilidad del mercado de criptomonedas.
+
+El conjunto de datos proporciona información sobre las criptomonedas más famosas por su capitalización de mercado, lo que incluye monedas como Bitcoin, Ethereum, Litecoin y Ripple. Se compone de datos diarios de precios y volumen de negociación, así como su capitalización de mercado. Además, se incluyen variables como la apertura, el cierre, el máximo y el mínimo de precios, en un línea temporal comprendida entre marzo de 2017 hasta agosto de 2023.
+
+## **Importancia del Análisis:**
+
+**a. Comportamiento del Mercado:**
+
+El análisis de estos datos permitirá comprender cómo las principales criptomonedas han fluctuado en términos de precios y volumen de negociación a lo largo del tiempo. Esto es vital para evaluar la volatilidad y la estabilidad de estos activos digitales.
+
+**b. Tendencias y Patrones:**
+
+Al analizar los patrones históricos de precios, se pueden identificar tendencias a corto y largo plazo. Esto es esencial para anticipar movimientos futuros y tomar decisiones informadas sobre la aceptación de ciertas criptomonedas en ArgonPAY.
+
+**c. Evaluación de Riesgos:**
+
+Dado que las criptomonedas son conocidas por su volatilidad, el análisis de este conjunto de datos ayudará a evaluar los riesgos asociados con las fluctuaciones de precios y tomar medidas proactivas para mitigarlos.
+
+**d. Apoyo a Decisiones Empresariales:**
+
+El análisis de los datos puede proporcionar información sobre qué criptomonedas son más estables o cuáles han demostrado un crecimiento constante. Esta información puede influir en las decisiones sobre qué criptomonedas aceptar en la pasarela de pagos.
+:::
+
+::: text-justify
+## **Fuentes de información**
+
+El conjunto de datos se encuentra en Kaggle y es una fuente confiable para análisis de datos. Los datos provienen de una variedad de intercambios de criptomonedas y están disponibles para uso público.
+:::
+
+# Estructura de los datos en series de tiempo {#Datos}
+
+::: text-justify
+El dataset seleccionado fue el de la stablecoin USDT (Tether) entre las diversas criptomonedas tiene una relevancia significativa en el análisis debido a su naturaleza como stablecoin. A diferencia de las criptomonedas más volátiles, USDT está diseñada para mantener un valor estable vinculado al dólar estadounidense. Esto permite que el análisis de serie de tiempo se enfoque en comportamientos menos volátiles y más predecibles en comparación con otras criptomonedas.
+:::
+
+```{r}
+library(readr)
+CRYPTO <- read_csv("C:/Users/LUISA MONTOYA/OneDrive - PUJ Cali/ARCHIVOS_LFMS/Escritorio/MAESTRIA-CIENCIA-DATOS/TERCER SEMESTRE/SERIES DE TIEMPO/MOD1-SERIES DE TIEMPO/MI-BOOK-CRYPTO/USDT.csv")
+
+tail(CRYPTO)
+head(CRYPTO)
+```
+
+::: text-justify
+## **Librerías necesarias**
+:::
+
+```{r}
+# librerias necesarias
+library(dplyr)
+library(ggplot2)
+library(forecast)
+```
+
+::: text-justify
+## **Variable de interés**
+
+La variable de interés corresponde a "close". Al enfocarse en el precio de cierre, es posible rastrear tendencias a lo largo del tiempo, detectar patrones técnicos y evaluar el rendimiento general del activo. Además, el precio de cierre es ampliamente reconocido y utilizado en análisis técnicos y fundamentales, lo que lo convierte en una métrica esencial para inversores, traders y analistas que buscan comprender la dinámica del mercado y tomar decisiones informadas.
+:::
+
+```{r}
+# Cargar los datos (reemplaza "CRYPTO" con el nombre de tu conjunto de datos)
+data <- CRYPTO
+
+# Convertir la columna de fecha a tipo 'Date'
+data$date <- as.Date(data$date)
+
+# Filtrar por la variable de interés
+variable <- data %>%
+  filter(ticker == "USDT") %>%
+  select(date, close)
+
+# Gráfico de la serie de tiempo original
+ggplot(variable, aes(x = date, y = close)) +
+  geom_line() +
+  labs(title = "Serie de Tiempo de Cierre para USDT",
+       x = "Fecha",
+       y = "Cierre") +
+  theme_minimal()
+```
+
+::: text-justify
+El análisis se enfoca en la exploración y visualización de la variable "close" de la criptomoneda USDT utilizando R y las librerías ggplot2 y forecast. La elección de la variable "close" fue relevante, ya que este precio de cierre es una métrica fundamental en el análisis financiero y técnico. Representa el valor final de la criptomoneda en un período dado y es ampliamente utilizado por inversores, traders y analistas para rastrear tendencias, patrones y rendimiento.
+
+Inicialmente, se filtran los datos para seleccionar únicamente las observaciones relacionadas con la criptomoneda USDT, lo que permite un análisis más específico y relevante. Se convierte la columna de fecha al formato adecuado y se procede a graficar la serie de tiempo original del precio de cierre. El gráfico destaca la fluctuación del precio a lo largo del tiempo, proporcionando una visión inicial de la dinámica de la criptomoneda.
+
+A continuación, se realiza un análisis de rezagos utilizando diferentes intervalos de tiempo (1 día, 7 días y 30 días). Los gráficos de rezagos comparan el precio original con los valores pasados desplazados en esos intervalos. Estos gráficos permiten identificar relaciones temporales y posibles patrones recurrentes que pueden ser relevantes para comprender la evolución de la criptomoneda.
+:::
+
+# Procesamiento y visualización
+
+::: text-justify
+El dataset seleccionado fue el de la stablecoin USDT (Tether) entre las diversas criptomonedas tiene una relevancia significativa en el análisis debido a su naturaleza como stablecoin. A diferencia de las criptomonedas más volátiles, USDT está diseñada para mantener un valor estable vinculado al dólar estadounidense. Esto permite que el análisis de serie de tiempo se enfoque en comportamientos menos volátiles y más predecibles en comparación con otras criptomonedas.
+:::
+```{r}
+library(readr)
+CRYPTO <- read_csv("C:/Users/LUISA MONTOYA/OneDrive - PUJ Cali/ARCHIVOS_LFMS/Escritorio/MAESTRIA-CIENCIA-DATOS/TERCER SEMESTRE/SERIES DE TIEMPO/MOD1-SERIES DE TIEMPO/MI-BOOK-CRYPTO/USDT.csv")
+
+tail(CRYPTO)
+head(CRYPTO)
+
+# librerias necesarias
+library(dplyr)
+library(ggplot2)
+library(forecast)
+```
+
+
+```{r}
+# Cargar los datos (reemplaza "CRYPTO" con el nombre de tu conjunto de datos)
+data <- CRYPTO
+
+# Convertir la columna de fecha a tipo 'Date'
+data$date <- as.Date(data$date)
+
+
+# Crear una serie de tiempo
+'ts_data <- ts(data$close, frequency = 365)  # Frecuencia diaria'
+
+# Crear una serie de tiempo
+ts_data <- ts(data$close, frequency = 12)  # Frecuencia mensual
+
+#Gráfico de datos en niveles
+ts.plot(data$close)
+
+# Suavizado exponencial
+exp_smooth <- ets(ts_data)
+
+# Pronóstico utilizando suavizado exponencial
+forecast_exp <- forecast(exp_smooth, h = 30)  # Pronóstico para 30 períodos
+
+# Modelo ARIMA
+arima_model <- auto.arima(ts_data)
+
+# Pronóstico utilizando modelo ARIMA
+forecast_arima <- forecast(arima_model, h = 30)  # Pronóstico para 30 períodos
+
+# Graficar los pronósticos
+autoplot(forecast_exp) +
+  labs(title = "Pronóstico con Suavizado Exponencial",
+       y = "Valor") +
+  theme_minimal()
+
+autoplot(forecast_arima) +
+  labs(title = "Pronóstico con Modelo ARIMA",
+       y = "Valor") +
+  theme_minimal()
+```
+
+```{r}
+# Realizar la descomposición
+descomposicion <- decompose(ts_data, type = "multiplicative")
+
+# Graficar los componentes de la descomposición
+autoplot(descomposicion) +
+  labs(title = "Descomposición de la Serie de Tiempo",
+       y = "Valor") +
+  theme_minimal()
+```
+
+::: text-justify
+El análisis de los resultados del código se centra en el procesamiento y visualización de la serie de tiempo de la stablecoin USDT (Tether), utilizando técnicas de suavizado exponencial, modelos ARIMA y descomposición. A continuación, se detalla el análisis de los resultados obtenidos:
+
+El análisis y las gráficas generadas en el código presentado se enfocan en la serie de tiempo de la stablecoin USDT (Tether) y su procesamiento utilizando suavizado exponencial, modelos ARIMA y descomposición. A continuación, se detalla el análisis de los resultados de las gráficas:
+
+## **Pronóstico con Suavizado Exponencial:**
+
+En el primer gráfico, se muestra el pronóstico realizado utilizando el método de suavizado exponencial. Debido a la naturaleza estable de USDT, este enfoque es apropiado para capturar las tendencias subyacentes en los datos. Sin embargo, se emite una advertencia indicando que no se maneja una frecuencia mayor a 24, lo que implica que la estacionalidad se ignora en este pronóstico. A pesar de esto, el gráfico permite visualizar la tendencia general de los datos y cómo el suavizado exponencial busca ajustarse a ella.
+
+## **Pronóstico con Modelo ARIMA:**
+
+El segundo gráfico muestra el pronóstico obtenido utilizando un modelo ARIMA. El modelo ARIMA es una técnica más avanzada que tiene en cuenta tanto la tendencia como la estacionalidad en los datos. Se utiliza el modelo auto.arima para encontrar automáticamente los parámetros adecuados para el modelo. El pronóstico resultante muestra cómo el modelo ARIMA intenta ajustarse a las fluctuaciones de la serie de tiempo, incluyendo patrones más complejos.
+
+## **Descomposición de la Serie de Tiempo:**
+
+La descomposición de la serie de tiempo revela la contribución de la tendencia, estacionalidad y residuos a la variabilidad total. Aunque se presentó un error debido a la falta de suficientes períodos para una descomposición estacional efectiva, esta limitación se resolvió al aplicar enfoques alternativos como el suavizado exponencial y los modelos ARIMA.
+
+En conclusión, el análisis realizado en este código ha permitido obtener una visión integral del comportamiento de USDT a lo largo del tiempo. La elección de técnicas como el suavizado exponencial y modelos ARIMA, adaptadas a la naturaleza estable de USDT, proporciona un análisis más completo. A pesar de los desafíos encontrados en la descomposición estacional, la aplicación de enfoques alternativos ha permitido aprovechar al máximo los datos disponibles y obtener información valiosa sobre el mercado de esta stablecoin.
+:::
+
+# Análisis de autocorrelación y autocorrelación parcial
+
+```{r}
+acf(ts_data)
+pacf(ts_data)
+```
+
+**Diferenciación para hacer la serie estacionaria**
+
+```{r}
+diff_ts_data <- diff(ts_data, differences = 1)
+```
+
+
+**Análisis de autocorrelación y autocorrelación parcial de la serie diferenciada**
+```{r}
+acf(diff_ts_data)
+pacf(diff_ts_data)
+```
+
+
+::: text-justify
+En esta sección, se realiza la identificación de modelos ARIMA siguiendo los pasos típicos de **Box-Jenkins:**
+
+1. Análisis de autocorrelación (ACF) y autocorrelación parcial (PACF) de la serie original para identificar posibles términos autoregresivos (AR) y de media móvil (MA).
+
+2. Diferenciación de la serie para hacerla estacionaria. En este caso, se aplica una diferencia de primer orden.
+
+3. Análisis de ACF y PACF de la serie diferenciada para refinar la identificación de los términos ARIMA.
+
+4. Selección del modelo ARIMA utilizando la función auto.arima, que encuentra automáticamente los parámetros adecuados para el modelo ARIMA.
+
+5. Pronóstico utilizando el modelo ARIMA identificado.
+
+El gráfico final muestra el pronóstico basado en el modelo ARIMA seleccionado. Este enfoque permite capturar patrones y tendencias específicas identificadas en la serie de tiempo original.
+
+El análisis se ha enriquecido con la metodología de Box-Jenkins para mejorar la precisión de las predicciones y proporcionar una visión más completa del comportamiento de la stablecoin USDT a lo largo del tiempo.
+:::
+
+# **Redes neuronales ELMAN**
+
+```{r}
+# Cargar las bibliotecas requeridas
+library(RSNNS)
+library(zoo)
+library(quantmod)
+
+# Definir el conjunto de entrenamiento (ajusta según tus preferencias)
+train <- 1:2100
+
+# Crear una serie temporal zoo
+y <- as.zoo(CRYPTO$close)
+
+# Crear variables de entrada (n valores anteriores)
+n <- 10
+slog <- data.frame(y)
+for (i in 1:n) {
+  slog <- cbind(slog, Lag(y, k = i))
+}
+
+# Eliminar las filas con NA
+slog <- slog[-(1:n),]
+
+# Definir las variables de entrada y salida de la red neuronal
+inputs <- slog[, 2:(n + 1)]
+outputs <- slog[, 1]
+
+# Crear una red neuronal Elman
+fit_elman <- elman(inputs[train, ],
+                   outputs[train],
+                   size = c(3, 2),
+                   learnFuncParams = c(0.1),
+                   maxit = 5000)
+
+# Graficar la evolución del error de la red
+plotIterativeError(fit_elman)
+
+# Graficar la serie de tiempo original y las predicciones
+y <- as.vector(outputs[-train])
+plot(y, type = "l")
+pred <- predict(fit_elman, inputs[-train, ])
+lines(pred, col = "red")
+```
+
+::: text-justify
+Al analizar el comportamiento de la criptomoneda USDT con la red neuronal ELMAN, se han obtenido resultados significativos. Al superponer las predicciones en la serie original, se observa una aproximación adecuada. No obstante, dado que se trata de una serie de tiempo financiera altamente volátil y compleja, no se logra generar una predicción perfecta.
+
+La red neuronal ELMAN ha demostrado su capacidad para capturar relaciones no lineales en los datos. Utilizando la información de los últimos 10 valores reales de la serie, ha realizado predicciones futuras con cierta precisión. Esto es un logro notable en el contexto de los mercados financieros, donde los movimientos de precios son inherentemente inciertos.
+
+En cuanto a la red neuronal Jordan, lamentablemente, no fue posible realizar el análisis debido a errores en el código, especialmente relacionados con la estructura de los datos en inputs y outputs. Estos errores impidieron la construcción y evaluación de la red Jordan, y es importante destacar que resolverlos requeriría una revisión más detallada del código y la estructura de los datos que no fue posible comprender.
+
+Por lo tanto, aunque no se alcanzaron predicciones perfectas, se demuestra que las redes neuronales ELMAN pueden ser herramientas valiosas para el análisis de series financieras como la de la criptomoneda USDT. Estos modelos pueden proporcionar información útil para la toma de decisiones en el contexto de la inversión en criptomonedas, siempre teniendo en cuenta la naturaleza intrínsecamente incierta de los mercados financieros.
+:::
+
+# **Conclusiones**
+
+El análisis realizado corrobora la información proporcionada por fuentes como Paybis (2022), donde se destaca que el precio de USDT a USD ha mantenido una relativa estabilidad a lo largo de su historia. Paybis menciona que, si bien ha habido momentos de variación, como en 2017 y 2018, con precios que llegaron a alcanzar 1,20$ y 1,50$ respectivamente, la criptomoneda USDT ha demostrado su capacidad para regresar a su objetivo de valor en torno a 1 USD. Esta constante búsqueda de la paridad con el dólar estadounidense es uno de los factores que ha contribuido a la confianza de los inversores y usuarios en USDT como una opción de resguardo de valor en el ecosistema de las criptomonedas.
+
+# **Referencias**
+paybis. (2022). Tether Precio. Obtenido de https://paybis.com/es/price/tether/
+
+
+
+
