@@ -8,7 +8,7 @@ bookdown::gitbook:
         <li><a href="https://github.com/lumontoyas/SERIES_CRYPTO" target="blank">Published with bookdown</a></li>
     edit: https://github.com/lumontoyas/SERIES_CRYPTO/edit/BRANCH/%s
     download: ["pdf", "epub"]
-bookdown::pdf_book:
+bookdown::pdf-book:
   includes:
     in_header: preamble.tex
   latex_engine: xelatex

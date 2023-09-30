@@ -1,0 +1,16 @@
+introducción
+contexto
+justificación
+importancia-del-análisis
+fuentes-de-información
+Datos
+librerías-necesarias
+variable-de-interés
+procesamiento-y-visualización
+pronóstico-con-suavizado-exponencial
+pronóstico-con-modelo-arima
+descomposición-de-la-serie-de-tiempo
+análisis-de-autocorrelación-y-autocorrelación-parcial
+redes-neuronales-elman
+conclusiones
+referencias
